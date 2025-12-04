@@ -1,5 +1,5 @@
 from repositories.user_repository import UserRepository
-from models.user import User
+from models.test_db import User
 from models.model import UserCreate, UserUpdate
 
 class UserService:

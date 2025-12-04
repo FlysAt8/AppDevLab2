@@ -20,24 +20,34 @@ class UserController(Controller):
         user = await user_service.get_by_id(user_id)
         if not user:
             raise NotFoundException(detail=f"User with ID {user_id} not found")
-        return UserResponse.model_validate(user)
+        u = UserResponse.model_validate(user, from_attributes=True)
+        return UserResponse.model_validate(user, from_attributes=True)
+        # return f'id = {u.id}:\n\tИмя: {u.username}\n\tEmail: {u.email}\n\tdescription: {u.description}'
 
     @get()
     async def get_all_users(self, user_service: UserService,
+                            count: int = 10,
+                            page: int = 1,
                             ) -> List[UserResponse]:
         """Получить всех пользователей"""
-        users = await user_service.get_by_filter()
-        return [UserResponse.model_validate(user) for user in users]
+        try:
+            users = await user_service.get_by_filter(count=count, page=page)
+            return [UserResponse.model_validate(user, from_attributes=True) for user in users]
+        except Exception as e:
+            import logging
+            logging.exception("Error in get_all_users")
+            raise HTTPException(status_code=500, detail=str(e))
     
     @post()
     async def create_user(self, user_service: UserService, request: Request) -> UserResponse:
+        """Создать пользователя"""
         data = await request.json()
         logging.info(f"Received user_data: {data}")
         user_data = UserCreate(**data)
         try:
             user = await user_service.create(user_data)
             logging.info(f"user.__dict__: {user.__dict__}")
-            return UserResponse.model_validate(user)
+            return UserResponse.model_validate(user, from_attributes=True)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
@@ -56,7 +66,7 @@ class UserController(Controller):
             user = await user_service.update(user_id, user_data)
             if not user:
                 raise NotFoundException(detail=f"User with ID {user_id} not found")
-            return UserResponse.model_validate(user)
+            return UserResponse.model_validate(user, from_attributes=True)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:

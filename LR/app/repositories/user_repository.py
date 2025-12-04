@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.user import User
+from models.test_db import User
 from models.model import UserCreate, UserUpdate
 
 class UserRepository:
@@ -31,19 +31,15 @@ class UserRepository:
 
 
     async def create(self, user_data: UserCreate) -> User:
-        try:
-            user = User(
-                username = user_data.username,
-                email = user_data.email,
-                description = user_data.description
-            )
-            self.session.add(user)
-            await self.session.commit()
-            await self.session.refresh(user)
-            return user
-        except Exception as e:
-            await self.session.rollback()
-            raise e
+        user = User(
+            username=user_data.username,
+            email=user_data.email,
+            description=user_data.description or ""
+        )
+        self.session.add(user)
+        await self.session.commit()       # фиксируем изменения
+        await self.session.refresh(user)  # обновляем объект с id
+        return user
 
 
     async def update(self, user_id: int, user_data: UserUpdate) -> User:
@@ -59,6 +55,7 @@ class UserRepository:
         await self.session.commit()
         await self.session.refresh(user)
         return user
+
 
     async def delete(self, user_id: int) -> None:
         user = await self.get_by_id(user_id)
