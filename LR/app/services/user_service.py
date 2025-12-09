@@ -1,6 +1,7 @@
-from repositories.user_repository import UserRepository
-from models.test_db import User
-from models.model import UserCreate, UserUpdate
+from LR.app.models.model import UserCreate, UserUpdate
+from LR.app.models.test_db import User
+from LR.app.repositories.user_repository import UserRepository
+
 
 class UserService:
     def __init__(self, user_repository: UserRepository):
@@ -9,11 +10,13 @@ class UserService:
     async def get_by_id(self, user_id: int) -> User | None:
         return await self.user_repository.get_by_id(user_id)
 
-    async def get_by_filter(self, count: int = 10, page: int = 1, **kwargs) -> list[User]:
+    async def get_by_filter(
+        self, count: int = 10, page: int = 1, **kwargs
+    ) -> list[User]:
         return await self.user_repository.get_by_filter(count, page, **kwargs)
 
     async def create(self, user_data: UserCreate) -> User:
-        filt = await self.user_repository.get_by_filter(email = user_data.email)
+        filt = await self.user_repository.get_by_filter(email=user_data.email)
         if filt:
             raise ValueError("User with this email address already exists")
 

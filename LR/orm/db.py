@@ -1,71 +1,61 @@
-from sqlalchemy.orm import declarative_base, mapped_column, Mapped, relationship
-from sqlalchemy import Column, Integer, String, ForeignKey
-import alembic
-# from uuid import UUID, uuid4
-from datetime import datetime
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 Base = declarative_base()
 
+
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(
-        primary_key = True,
-        # default = uuid4,
+        primary_key=True,
     )
-    username: Mapped[str] = mapped_column(nullable=False, unique=True)
+    username: Mapped[str] = mapped_column(nullable=False, unique=False)
     email: Mapped[str] = mapped_column(nullable=False, unique=True)
     description: Mapped[str] = mapped_column(nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(default=datetime.now)
-    updated_at: Mapped[datetime] = mapped_column(onupdate=datetime.now, nullable=True)
+    address = relationship("Address", back_populates="user")
+    order = relationship("Order", back_populates="user")
 
-    addresses = relationship("Address")
-    orders = relationship("Order")
 
 class Address(Base):
-    __tablename__ = 'addresses'
+    __tablename__ = "addresses"
 
     id: Mapped[int] = mapped_column(
-        primary_key = True,
-        # default = uuid4,
+        primary_key=True,
     )
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     street: Mapped[str] = mapped_column(nullable=False)
     city: Mapped[str] = mapped_column(nullable=False)
-    state: Mapped[str] = mapped_column()
-    zip_code: Mapped[str] = mapped_column()
     country: Mapped[str] = mapped_column(nullable=False)
-    is_primary: Mapped[bool] = mapped_column(default=False)
 
-    created_at: Mapped[datetime] = mapped_column(default=datetime.now)
-    updated_at: Mapped[datetime] = mapped_column(onupdate=datetime.now, nullable=True)
+    user = relationship("User", back_populates="address")
+    order = relationship("Order", back_populates="address")
 
-    user = relationship("User")
-    order = relationship("Order")
 
 class Order(Base):
-    __tablename__ = 'orders'
+    __tablename__ = "orders"
 
     id: Mapped[int] = mapped_column(
-        primary_key = True,
-        # default = uuid4,
+        primary_key=True,
     )
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=True)
-    address_id: Mapped[int] = mapped_column(ForeignKey('addresses.id'), nullable=True)
-    product_id: Mapped[int] = mapped_column(ForeignKey('products.id'), nullable=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    address_id: Mapped[int] = mapped_column(ForeignKey("addresses.id"), nullable=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
+    quantity: Mapped[int] = mapped_column(nullable=False)
 
-    user = relationship("User")
-    address = relationship("Address")
-    product = relationship("Product")
+    user = relationship("User", back_populates="order")
+    address = relationship("Address", back_populates="order")
+    product = relationship("Product", back_populates="order")
+
 
 class Product(Base):
-    __tablename__ = 'products'
+    __tablename__ = "products"
 
     id: Mapped[int] = mapped_column(
-        primary_key = True,
-        # default = uuid4,
+        primary_key=True,
     )
-    product_name: Mapped[str] = mapped_column(nullable=True)
+    product_name: Mapped[str] = mapped_column(nullable=True, unique=True)
+    quantity: Mapped[int] = mapped_column(nullable=True)
 
-    order = relationship("Order")
+    order = relationship("Order", back_populates="product")

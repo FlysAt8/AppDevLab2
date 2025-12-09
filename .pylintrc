@@ -1,0 +1,19 @@
+[MASTER]
+init-hook='import sys; sys.path.append("./")'
+ignore=tests,__pycache__,*.pyc,*.db
+load-plugins = pylint_pytest
+
+[MESSAGES CONTROL]
+disable=
+    C0114,
+    C0115,
+    C0116,
+    C0411,
+    E0013,
+    E0401,
+    R0903,
+    R0801,
+    W0621
+
+[FORMAT]
+max-line-length=88

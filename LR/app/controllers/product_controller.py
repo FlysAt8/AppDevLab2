@@ -1,21 +1,27 @@
-from litestar import Controller, get, post, put, delete, Request
-from litestar.di import Provide
-from litestar.params import Parameter, Body
-from litestar.exceptions import NotFoundException, HTTPException
 import logging
-
 from typing import List
 
-from services.product_service import ProductService
-from models.model import ProductResponse, ProductCreate, ProductUpdate
+from litestar import Controller, Request, delete, get, post, put
+from litestar.exceptions import HTTPException, NotFoundException
+from litestar.params import Parameter
+from LR.app.models.model import ProductCreate, ProductResponse, ProductUpdate
+from LR.app.services.product_service import ProductService
+
 
 class ProductController(Controller):
     path = "/products"
-    signature_namespace = {"ProductService": ProductService, "ProductCreate": ProductCreate, "ProductResponse": ProductResponse}
+    signature_namespace = {
+        "ProductService": ProductService,
+        "ProductCreate": ProductCreate,
+        "ProductResponse": ProductResponse,
+    }
 
     @get("/{product_id:int}")
-    async def get_product_by_id(self, product_service: ProductService, product_id: int = Parameter(gt=0),
-                             ) -> ProductResponse:
+    async def get_product_by_id(
+        self,
+        product_service: ProductService,
+        product_id: int = Parameter(gt=0),
+    ) -> ProductResponse:
         """Получить продукт по ID"""
         product = await product_service.get_by_id(product_id)
         if not product:
@@ -23,56 +29,71 @@ class ProductController(Controller):
         return ProductResponse.model_validate(product, from_attributes=True)
 
     @get()
-    async def get_all_products(self, product_service: ProductService,
-                               count: int = 10,
-                               page: int = 1,
-                            ) -> List[ProductResponse]:
+    async def get_all_products(
+        self,
+        product_service: ProductService,
+        count: int = 10,
+        page: int = 1,
+    ) -> List[ProductResponse]:
         """Получить все продукты"""
         try:
             products = await product_service.get_by_filter(count=count, page=page)
-            return [ProductResponse.model_validate(product, from_attributes=True) for product in products]
+            return [
+                ProductResponse.model_validate(product, from_attributes=True)
+                for product in products
+            ]
         except Exception as e:
-            import logging
             logging.exception("Error in get_all_products")
-            raise HTTPException(status_code=500, detail=str(e))
-    
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
     @post()
-    async def create_product(self, product_service: ProductService, request: Request) -> ProductResponse:
+    async def create_product(
+        self, product_service: ProductService, request: Request
+    ) -> ProductResponse:
         """Создать продукт"""
         data = await request.json()
-        logging.info(f"Received product_data: {data}")
+        logging.info("Received product_data: %s", data)
         product_data = ProductCreate(**data)
         try:
             product = await product_service.create(product_data)
-            logging.info(f"product.__dict__: {product.__dict__}")
+            logging.info("product.__dict__: %s", product.__dict__)
             return ProductResponse.model_validate(product, from_attributes=True)
         except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
+            raise HTTPException(status_code=400, detail=str(e)) from e
         except Exception as e:
             logging.exception("Unhandled error in create_product")
-            raise HTTPException(status_code=500, detail=f"Error creating product: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Error creating product: {str(e)}"
+            ) from e
 
-        
     @put("/{product_id:int}")
-    async def update_product(self, product_service: ProductService, product_id: int, request: Request,
-                          ) -> ProductResponse:
+    async def update_product(
+        self,
+        product_service: ProductService,
+        product_id: int,
+        request: Request,
+    ) -> ProductResponse:
         """Обновить продукт"""
         try:
             data = await request.json()
-            logging.info(f"Received update data: {data}")
+            logging.info("Received update data: %s", data)
             product_data = ProductUpdate(**data)
             product = await product_service.update(product_id, product_data)
             if not product:
-                raise NotFoundException(detail=f"Product with ID {product_id} not found")
+                raise NotFoundException(
+                    detail=f"Product with ID {product_id} not found"
+                )
             return ProductResponse.model_validate(product, from_attributes=True)
         except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
+            raise HTTPException(status_code=400, detail=str(e)) from e
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error updating product: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Error updating product: {str(e)}"
+            ) from e
 
-        
     @delete("/{product_id:int}")
-    async def delete_product(self, product_service: ProductService, product_id: int) -> None:
+    async def delete_product(
+        self, product_service: ProductService, product_id: int
+    ) -> None:
         """Удалить продукт"""
         return await product_service.delete(product_id)
-        

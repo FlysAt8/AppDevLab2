@@ -1,33 +1,29 @@
 import pytest
-from models.model import OrderCreate, OrderUpdate, UserCreate, ProductCreate
+
+from models.model import OrderCreate, OrderUpdate, ProductCreate, UserCreate
 from repositories.order_repository import OrderRepository
-from repositories.user_repository import UserRepository
 from repositories.product_repository import ProductRepository
+from repositories.user_repository import UserRepository
+
 
 class TestOrderRepository:
-    
+
     @pytest.mark.asyncio
-    async def test_order_create(self, order_repository: OrderRepository, user_repository: UserRepository, product_repository: ProductRepository):
+    async def test_order_create(
+        self,
+        order_repository: OrderRepository,
+        user_repository: UserRepository,
+        product_repository: ProductRepository,
+    ):
         """Тест создания заказа"""
 
-        user_data = UserCreate(
-            username="Alex",
-            email="email",
-            description=""
-        )
+        user_data = UserCreate(username="Alex", email="email", description="")
         await user_repository.create(user_data)
 
-        product_data = ProductCreate(
-            product_name="prod",
-            quantity=1
-        )
+        product_data = ProductCreate(product_name="prod", quantity=1)
         await product_repository.create(product_data)
 
-        order_data = OrderCreate(
-            user_id = 1,
-            product_id = 1,
-            quantity = 1
-        )
+        order_data = OrderCreate(user_id=1, product_id=1, quantity=1)
 
         order = await order_repository.create(order_data)
 
@@ -36,29 +32,22 @@ class TestOrderRepository:
         assert order.product_id == 1
         assert order.quantity == 1
 
-
     @pytest.mark.asyncio
-    async def test_order_get_id(self, order_repository: OrderRepository, user_repository: UserRepository, product_repository: ProductRepository):
+    async def test_order_get_id(
+        self,
+        order_repository: OrderRepository,
+        user_repository: UserRepository,
+        product_repository: ProductRepository,
+    ):
         """Тест получение заказа по id"""
 
-        user_data = UserCreate(
-            username="Alex",
-            email="email",
-            description=""
-        )
+        user_data = UserCreate(username="Alex", email="email", description="")
         await user_repository.create(user_data)
 
-        product_data = ProductCreate(
-            product_name="prod",
-            quantity=1
-        )
+        product_data = ProductCreate(product_name="prod", quantity=1)
         await product_repository.create(product_data)
 
-        order_data = OrderCreate(
-            user_id = 1,
-            product_id = 1,
-            quantity = 1
-        )
+        order_data = OrderCreate(user_id=1, product_id=1, quantity=1)
 
         await order_repository.create(order_data)
 
@@ -69,43 +58,28 @@ class TestOrderRepository:
         assert found_order.product_id == 1
         assert found_order.quantity == 1
 
-
     @pytest.mark.asyncio
-    async def test_order_get_all(self, order_repository: OrderRepository, user_repository: UserRepository, product_repository: ProductRepository):
+    async def test_order_get_all(
+        self,
+        order_repository: OrderRepository,
+        user_repository: UserRepository,
+        product_repository: ProductRepository,
+    ):
         """Тест получение списка заказов"""
 
-        user_data = UserCreate(
-            username="Alex",
-            email="email",
-            description=""
-        )
+        user_data = UserCreate(username="Alex", email="email", description="")
         await user_repository.create(user_data)
 
-        user_data = UserCreate(
-            username="Alex1",
-            email="email1",
-            description=""
-        )
+        user_data = UserCreate(username="Alex1", email="email1", description="")
         await user_repository.create(user_data)
 
-        product_data = ProductCreate(
-            product_name="prod",
-            quantity=2
-        )
+        product_data = ProductCreate(product_name="prod", quantity=2)
         await product_repository.create(product_data)
 
-        order_data1 = OrderCreate(
-            user_id = 1,
-            product_id = 1,
-            quantity = 1
-        )
+        order_data1 = OrderCreate(user_id=1, product_id=1, quantity=1)
         await order_repository.create(order_data1)
 
-        order_data2 = OrderCreate(
-            user_id = 2,
-            product_id = 1,
-            quantity = 1
-        )
+        order_data2 = OrderCreate(user_id=2, product_id=1, quantity=1)
         await order_repository.create(order_data2)
 
         found_order = await order_repository.get_by_filter()
@@ -122,44 +96,30 @@ class TestOrderRepository:
         assert found_order[1].product_id == 1
         assert found_order[1].quantity == 1
 
-
     @pytest.mark.asyncio
-    async def test_order_update(self, order_repository: OrderRepository, user_repository: UserRepository, product_repository: ProductRepository):
+    async def test_order_update(
+        self,
+        order_repository: OrderRepository,
+        user_repository: UserRepository,
+        product_repository: ProductRepository,
+    ):
         """Тест обновления заказа"""
 
-        user_data = UserCreate(
-            username="Alex",
-            email="email",
-            description=""
-        )
+        user_data = UserCreate(username="Alex", email="email", description="")
         await user_repository.create(user_data)
 
-        user_data = UserCreate(
-            username="Alex1",
-            email="email1",
-            description=""
-        )
+        user_data = UserCreate(username="Alex1", email="email1", description="")
         await user_repository.create(user_data)
 
-        product_data = ProductCreate(
-            product_name="prod",
-            quantity=1
-        )
+        product_data = ProductCreate(product_name="prod", quantity=1)
         await product_repository.create(product_data)
 
-        order_data = OrderCreate(
-            user_id = 1,
-            product_id = 1,
-            quantity = 1
-        )
+        order_data = OrderCreate(user_id=1, product_id=1, quantity=1)
 
         await order_repository.create(order_data)
 
         update_order = await order_repository.update(
-            1,
-            order_data=OrderUpdate(
-                user_id = 2
-            )
+            1, order_data=OrderUpdate(user_id=2)
         )
 
         found_order = await order_repository.get_by_id(1)
@@ -171,29 +131,22 @@ class TestOrderRepository:
         assert found_order.product_id == update_order.product_id
         assert found_order.quantity == update_order.quantity
 
-
     @pytest.mark.asyncio
-    async def test_order_delete(self, order_repository: OrderRepository, user_repository: UserRepository, product_repository: ProductRepository):
+    async def test_order_delete(
+        self,
+        order_repository: OrderRepository,
+        user_repository: UserRepository,
+        product_repository: ProductRepository,
+    ):
         """Тест удаления пользователя"""
 
-        user_data = UserCreate(
-            username="Alex1",
-            email="email1",
-            description=""
-        )
+        user_data = UserCreate(username="Alex1", email="email1", description="")
         await user_repository.create(user_data)
 
-        product_data = ProductCreate(
-            product_name="prod",
-            quantity=1
-        )
+        product_data = ProductCreate(product_name="prod", quantity=1)
         await product_repository.create(product_data)
 
-        order_data = OrderCreate(
-            user_id = 1,
-            product_id = 1,
-            quantity = 1
-        )
+        order_data = OrderCreate(user_id=1, product_id=1, quantity=1)
 
         await order_repository.create(order_data)
         found_order = await order_repository.get_by_id(1)

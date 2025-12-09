@@ -1,0 +1,31 @@
+fail_fast: false
+repos:
+- repo: local
+  hooks:
+  - id: system
+    name: Black
+    entry: black LR/app
+    pass_filenames: false
+    language: python
+    types: [python]
+    additional_dependencies: [black]
+
+- repo: local
+  hooks:
+  - id: isort
+    name: isort
+    entry: isort LR/app
+    pass_filenames: false
+    language: python
+    types: [python]
+    additional_dependencies: [isort]
+
+- repo: local
+  hooks:
+  - id: system
+    name: pylint
+    entry: pylint LR/app
+    pass_filenames: false
+    language: python
+    types: [python]
+    additional_dependencies: [pylint]

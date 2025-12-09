@@ -1,0 +1,18 @@
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+include = "LR/app"
+exclude = '''
+/(
+    \.venv
+  | \.pytest_cache
+  | __pycache__
+  | test\.db
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+src_paths = ["LR/app"]
+known_first_party = ["controllers", "services", "repositories", "models"]

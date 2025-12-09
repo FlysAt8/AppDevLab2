@@ -89,4 +89,4 @@ def insert_order():
                                  product_id=product1.id)]
             session.commit()
 
-insert_order()
+# insert_order()

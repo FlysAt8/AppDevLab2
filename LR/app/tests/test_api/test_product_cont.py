@@ -1,40 +1,43 @@
 from typing import Protocol
+from unittest.mock import AsyncMock, Mock
 
 import pytest
-from pydantic import BaseModel
-from polyfactory.factories.pydantic_factory import ModelFactory
-
-from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from litestar.di import Provide
+from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from litestar.testing import create_test_client
+from polyfactory.factories.pydantic_factory import ModelFactory
+from pydantic import BaseModel
 
-from services.product_service import ProductService
 from controllers.product_controller import ProductController
-
-from unittest.mock import Mock, AsyncMock
 from repositories.product_repository import ProductRepository
+from services.product_service import ProductService
+
 
 class Product(BaseModel):
     id: int
     product_name: str
     quantity: int
 
+
 class ProductFactory(ModelFactory[Product]):
     model = Product
     __check_model__ = False
+
 
 class ProductCreate(BaseModel):
     product_name: str
     quantity: int
 
+
 class ProductFacCreat(ModelFactory[ProductCreate]):
     model = ProductCreate
     __check_model__ = False
-    
+
 
 @pytest.fixture()
 def product():
     return ProductFactory.build()
+
 
 def test_get_product_by_id(product: Product):
     """Тест получения определенного продукта"""
@@ -45,7 +48,9 @@ def test_get_product_by_id(product: Product):
 
     with create_test_client(
         route_handlers=[ProductController],
-        dependencies={"product_service": Provide(lambda: mock_service, sync_to_thread=False)}
+        dependencies={
+            "product_service": Provide(lambda: mock_service, sync_to_thread=False)
+        },
     ) as client:
         response = client.get(f"/products/{product.id}")
         assert response.status_code == HTTP_200_OK
@@ -58,6 +63,7 @@ def test_get_product_by_id(product: Product):
 def products():
     return [ProductFactory.build() for i in range(3)]
 
+
 def test_get_products_by_filter(products: list[Product]):
     """Тест получения продуктов"""
     mock_product_repo = AsyncMock(spec=ProductRepository)
@@ -67,7 +73,9 @@ def test_get_products_by_filter(products: list[Product]):
 
     with create_test_client(
         route_handlers=[ProductController],
-        dependencies={"product_service": Provide(lambda: mock_service, sync_to_thread=False)}
+        dependencies={
+            "product_service": Provide(lambda: mock_service, sync_to_thread=False)
+        },
     ) as client:
         response = client.get(f"/products")
         data = response.json()
@@ -83,12 +91,11 @@ def test_get_products_by_filter(products: list[Product]):
 def product_create():
     return ProductFacCreat.build()
 
+
 def test_post_product(product_create: ProductCreate):
     """Тест создания продукта"""
     product = Product(
-        id=1,
-        product_name=product_create.product_name,
-        quantity=product_create.quantity
+        id=1, product_name=product_create.product_name, quantity=product_create.quantity
     )
 
     mock_service = AsyncMock(spec=ProductService)
@@ -96,7 +103,9 @@ def test_post_product(product_create: ProductCreate):
 
     with create_test_client(
         route_handlers=[ProductController],
-        dependencies={"product_service": Provide(lambda: mock_service, sync_to_thread=False)}
+        dependencies={
+            "product_service": Provide(lambda: mock_service, sync_to_thread=False)
+        },
     ) as client:
         response = client.post(f"/products", json=product_create.model_dump())
         assert response.status_code == HTTP_201_CREATED
@@ -107,12 +116,10 @@ def test_post_product(product_create: ProductCreate):
 def test_put_product(product_create: ProductCreate):
     """Тест обновления продукта"""
     product = Product(
-        id=1,
-        product_name=product_create.product_name,
-        quantity=product_create.quantity
+        id=1, product_name=product_create.product_name, quantity=product_create.quantity
     )
 
-    old_product = Product(id=1,product_name="test",quantity=1)
+    old_product = Product(id=1, product_name="test", quantity=1)
 
     mock_service = AsyncMock(spec=ProductService)
     mock_service.get_by_id.re.return_value = old_product
@@ -120,9 +127,13 @@ def test_put_product(product_create: ProductCreate):
 
     with create_test_client(
         route_handlers=[ProductController],
-        dependencies={"product_service": Provide(lambda: mock_service, sync_to_thread=False)}
+        dependencies={
+            "product_service": Provide(lambda: mock_service, sync_to_thread=False)
+        },
     ) as client:
-        response = client.put(f"/products/{old_product.id}", json=product_create.model_dump())
+        response = client.put(
+            f"/products/{old_product.id}", json=product_create.model_dump()
+        )
         assert response.status_code == HTTP_200_OK
         assert response.json()["id"] == product.id
         assert response.json()["product_name"] == product.product_name
@@ -131,7 +142,7 @@ def test_put_product(product_create: ProductCreate):
 def test_delete_product():
     """Тест удаления продукта"""
 
-    old_product = Product(id=1,product_name="test",quantity=1)
+    old_product = Product(id=1, product_name="test", quantity=1)
 
     mock_service = AsyncMock(spec=ProductService)
     mock_service.get_by_id.re.return_value = old_product
@@ -139,7 +150,9 @@ def test_delete_product():
 
     with create_test_client(
         route_handlers=[ProductController],
-        dependencies={"product_service": Provide(lambda: mock_service, sync_to_thread=False)}
+        dependencies={
+            "product_service": Provide(lambda: mock_service, sync_to_thread=False)
+        },
     ) as client:
         response = client.delete(f"/products/{old_product.id}")
         assert response.status_code == HTTP_204_NO_CONTENT
@@ -148,6 +161,7 @@ def test_delete_product():
 @pytest.fixture()
 def products10():
     return [ProductFactory.build() for i in range(10)]
+
 
 def test_get_products_by_filter_page(products10: list[Product]):
     """Тест получения продуктов по страницам"""
@@ -166,7 +180,9 @@ def test_get_products_by_filter_page(products10: list[Product]):
 
     with create_test_client(
         route_handlers=[ProductController],
-        dependencies={"product_service": Provide(lambda: mock_service, sync_to_thread=False)}
+        dependencies={
+            "product_service": Provide(lambda: mock_service, sync_to_thread=False)
+        },
     ) as client:
         # Первые продукты
         response = client.get(f"/products/?count=5&page=1")
