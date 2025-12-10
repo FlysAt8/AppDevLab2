@@ -1,4 +1,5 @@
 from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -70,9 +71,7 @@ class ProductResponse(ProductBase):
         validate_assignment = True
 
 
-class OrderBase(BaseModel):
-    user_id: int
-    address_id: Optional[int] = None
+class OrderItemBase(BaseModel):
     product_id: int
     quantity: int
 
@@ -82,13 +81,11 @@ class OrderBase(BaseModel):
         validate_assignment = True
 
 
-class OrderCreate(OrderBase):
+class OrderItemCreate(OrderItemBase):
     pass
 
 
-class OrderUpdate(BaseModel):
-    user_id: Optional[int] = None
-    address_id: Optional[int] = None
+class OrderItemUpdate(BaseModel):
     product_id: Optional[int] = None
     quantity: Optional[int] = None
 
@@ -98,8 +95,44 @@ class OrderUpdate(BaseModel):
         validate_assignment = True
 
 
+class OrderItemResponse(OrderItemBase):
+    id: int
+
+    class ConfigDict:
+        from_attributes = True
+        extra = "forbid"
+        validate_assignment = True
+
+
+class OrderBase(BaseModel):
+    user_id: int
+    address_id: Optional[int] = None
+
+    class ConfigDict:
+        from_attributes = True
+        extra = "forbid"
+        validate_assignment = True
+
+
+class OrderCreate(OrderBase):
+    # при создании заказа можно сразу передать список позиций
+    items: Optional[list[OrderItemCreate]] = []
+
+
+class OrderUpdate(BaseModel):
+    user_id: Optional[int] = None
+    address_id: Optional[int] = None
+    items: Optional[list[OrderItemUpdate]] = None
+
+    class ConfigDict:
+        from_attributes = True
+        extra = "forbid"
+        validate_assignment = True
+
+
 class OrderResponse(OrderBase):
     id: int
+    items: list[OrderItemResponse]
 
     class ConfigDict:
         from_attributes = True

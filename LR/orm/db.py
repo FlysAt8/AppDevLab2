@@ -15,7 +15,7 @@ class User(Base):
     description: Mapped[str] = mapped_column(nullable=True)
 
     address = relationship("Address", back_populates="user")
-    order = relationship("Order", back_populates="user")
+    orders = relationship("Order", back_populates="user")
 
 
 class Address(Base):
@@ -30,23 +30,33 @@ class Address(Base):
     country: Mapped[str] = mapped_column(nullable=False)
 
     user = relationship("User", back_populates="address")
-    order = relationship("Order", back_populates="address")
+    orders = relationship("Order", back_populates="address")
 
 
 class Order(Base):
     __tablename__ = "orders"
 
-    id: Mapped[int] = mapped_column(
-        primary_key=True,
-    )
+    id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     address_id: Mapped[int] = mapped_column(ForeignKey("addresses.id"), nullable=True)
+
+    user = relationship("User", back_populates="orders")
+    address = relationship("Address", back_populates="orders")
+    items = relationship(
+        "OrderItem", back_populates="order", cascade="all, delete-orphan"
+    )
+
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     quantity: Mapped[int] = mapped_column(nullable=False)
 
-    user = relationship("User", back_populates="order")
-    address = relationship("Address", back_populates="order")
-    product = relationship("Product", back_populates="order")
+    order = relationship("Order", back_populates="items")
+    product = relationship("Product", back_populates="order_items")
 
 
 class Product(Base):
@@ -58,4 +68,4 @@ class Product(Base):
     product_name: Mapped[str] = mapped_column(nullable=True, unique=True)
     quantity: Mapped[int] = mapped_column(nullable=True)
 
-    order = relationship("Order", back_populates="product")
+    order_items = relationship("OrderItem", back_populates="product")

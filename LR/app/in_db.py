@@ -1,9 +1,8 @@
 import asyncio
 import os
 
+from LR.orm.db import Base
 from sqlalchemy.ext.asyncio import create_async_engine
-
-from models.test_db import Base
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost/my_db"

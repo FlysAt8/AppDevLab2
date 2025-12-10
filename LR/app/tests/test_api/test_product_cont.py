@@ -1,16 +1,14 @@
-from typing import Protocol
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock
 
 import pytest
 from litestar.di import Provide
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from litestar.testing import create_test_client
+from LR.app.controllers.product_controller import ProductController
+from LR.app.repositories.product_repository import ProductRepository
+from LR.app.services.product_service import ProductService
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel
-
-from controllers.product_controller import ProductController
-from repositories.product_repository import ProductRepository
-from services.product_service import ProductService
 
 
 class Product(BaseModel):

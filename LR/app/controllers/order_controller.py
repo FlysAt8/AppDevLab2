@@ -3,8 +3,8 @@ import logging
 from litestar import Controller, Request, delete, get, post, put
 from litestar.exceptions import HTTPException, NotFoundException
 from litestar.params import Parameter
-from LR.app.models.model import OrderCreate, OrderResponse, OrderUpdate
 from LR.app.services.order_service import OrderService
+from LR.orm.model import OrderCreate, OrderResponse, OrderUpdate
 
 
 class OrderController(Controller):
@@ -70,7 +70,7 @@ class OrderController(Controller):
     async def create_order(
         self, order_service: OrderService, request: Request
     ) -> OrderResponse:
-        """Создать продукт"""
+        """Создать заказ"""
         data = await request.json()
         logging.info("Received order_data: %s", data)
         order_data = OrderCreate(**data)
@@ -93,7 +93,7 @@ class OrderController(Controller):
         order_id: int,
         request: Request,
     ) -> OrderResponse:
-        """Обновить продукт"""
+        """Обновить заказ или позиции"""
         try:
             data = await request.json()
             logging.info("Received update data: %s", data)
@@ -111,5 +111,5 @@ class OrderController(Controller):
 
     @delete("/{order_id:int}")
     async def delete_order(self, order_service: OrderService, order_id: int) -> None:
-        """Удалить продукт"""
+        """Удалить заказ"""
         return await order_service.delete(order_id)

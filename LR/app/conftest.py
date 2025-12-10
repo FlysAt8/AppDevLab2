@@ -1,17 +1,19 @@
 import asyncio
+import os
 import sys
 
 import pytest
 import pytest_asyncio
 from litestar.testing import TestClient
+from LR.app.main import app
+from LR.app.repositories.order_repository import OrderRepository
+from LR.app.repositories.product_repository import ProductRepository
+from LR.app.repositories.user_repository import UserRepository
+from LR.orm.db import Base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from main import app
-from models.test_db import Base
-from repositories.order_repository import OrderRepository
-from repositories.product_repository import ProductRepository
-from repositories.user_repository import UserRepository
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 if sys.platform.startswith("win"):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

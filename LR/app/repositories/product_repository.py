@@ -1,5 +1,5 @@
-from LR.app.models.model import ProductCreate, ProductUpdate
-from LR.app.models.test_db import Product
+from LR.orm.db import Product
+from LR.orm.model import ProductCreate, ProductUpdate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

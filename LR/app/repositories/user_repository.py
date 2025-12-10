@@ -1,5 +1,5 @@
-from LR.app.models.model import UserCreate, UserUpdate
-from LR.app.models.test_db import User
+from LR.orm.db import User
+from LR.orm.model import UserCreate, UserUpdate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

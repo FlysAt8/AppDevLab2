@@ -4,8 +4,8 @@ from typing import List
 from litestar import Controller, Request, delete, get, post, put
 from litestar.exceptions import HTTPException, NotFoundException
 from litestar.params import Parameter
-from LR.app.models.model import ProductCreate, ProductResponse, ProductUpdate
 from LR.app.services.product_service import ProductService
+from LR.orm.model import ProductCreate, ProductResponse, ProductUpdate
 
 
 class ProductController(Controller):

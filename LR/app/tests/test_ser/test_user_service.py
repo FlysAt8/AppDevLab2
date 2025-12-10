@@ -1,10 +1,9 @@
 from unittest.mock import AsyncMock, Mock
 
 import pytest
-
-from models.model import UserCreate
-from repositories.user_repository import UserRepository
-from services.user_service import UserService
+from LR.app.repositories.user_repository import UserRepository
+from LR.app.services.user_service import UserService
+from LR.orm.model import UserCreate
 
 
 class TestUserService:

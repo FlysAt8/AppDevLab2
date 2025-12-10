@@ -1,45 +1,45 @@
-from typing import Protocol
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock
 
 import pytest
 from litestar.di import Provide
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from litestar.testing import create_test_client
+from LR.app.controllers.order_controller import OrderController
+from LR.app.repositories.order_repository import OrderRepository
+from LR.app.repositories.product_repository import ProductRepository
+from LR.app.repositories.user_repository import UserRepository
+from LR.app.services.order_service import OrderService
+from LR.orm.model import (
+    OrderCreate,
+    OrderItemCreate,
+    OrderItemResponse,
+    OrderResponse,
+    OrderUpdate,
+)
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel
 
-from controllers.order_controller import OrderController
-from repositories.order_repository import OrderRepository
-from repositories.product_repository import ProductRepository
-from repositories.user_repository import UserRepository
-from services.order_service import OrderService
-from services.product_service import ProductService
-from services.user_service import UserService
+# class Order(BaseModel):
+#     id: int
+#     user_id: int
+#     address_id: int
+#     items: list = []
 
 
-class Order(BaseModel):
-    id: int
-    user_id: int
-    address_id: int
-    product_id: int
-    quantity: int
-
-
-class OrderFactory(ModelFactory[Order]):
-    model = Order
+class OrderFactory(ModelFactory[OrderResponse]):
+    model = OrderResponse
     __check_model__ = False
 
 
-class OrderCreate(BaseModel):
-    user_id: int
-    address_id: int
-    product_id: int
-    quantity: int
+# class OrderCreate(BaseModel):
+#     user_id: int
+#     address_id: int
+#     items: list = []
 
 
-class OrderFacCreat(ModelFactory[OrderCreate]):
-    model = OrderCreate
-    __check_model__ = False
+# class OrderFacCreat(ModelFactory[OrderCreate]):
+#     model = OrderCreate
+#     __check_model__ = False
 
 
 class Product(BaseModel):
@@ -60,7 +60,7 @@ def order():
     return OrderFactory.build()
 
 
-def test_get_order_by_id(order: Order):
+def test_get_order_by_id(order: OrderResponse):
     """Тест получения определенного заказа"""
 
     mock_user_repo = AsyncMock(spec=UserRepository)
@@ -84,9 +84,7 @@ def test_get_order_by_id(order: Order):
         response = client.get(f"/orders/{order.id}")
         assert response.status_code == HTTP_200_OK
         assert response.json()["id"] == order.id
-        assert response.json()["user_id"] == order.user_id
-        assert response.json()["product_id"] == order.product_id
-        assert response.json()["quantity"] == order.quantity
+        assert response.json()["items"][0]["id"] == order.items[0].id
 
 
 @pytest.fixture()
@@ -94,7 +92,7 @@ def orders():
     return [OrderFactory.build() for i in range(3)]
 
 
-def test_get_orders_by_filter_user(orders: list[Order]):
+def test_get_orders_by_filter_user(orders: list[OrderResponse]):
     """Тест получения заказов пользователя"""
     mock_user_repo = AsyncMock(spec=UserRepository)
     mock_product_repo = AsyncMock(spec=ProductRepository)
@@ -118,9 +116,10 @@ def test_get_orders_by_filter_user(orders: list[Order]):
         data = response.json()
         assert response.status_code == HTTP_200_OK
         assert data[0]["id"] == orders[0].id
+        assert data[1]["id"] == orders[1].id
 
 
-def test_get_orders_by_filter(orders: list[Order]):
+def test_get_orders_by_filter(orders: list[OrderResponse]):
     """Тест получения всех заказов"""
     mock_user_repo = AsyncMock(spec=UserRepository)
     mock_product_repo = AsyncMock(spec=ProductRepository)
@@ -149,17 +148,16 @@ def test_get_orders_by_filter(orders: list[Order]):
 
 @pytest.fixture()
 def order_create():
-    return OrderFacCreat.build()
+    return OrderFactory.build()
 
 
-def test_post_order(order_create: OrderCreate):
+def test_post_order(order_create: OrderResponse):
     """Тест создания заказа"""
-    order = Order(
+    order = OrderResponse(
         id=1,
         user_id=order_create.user_id,
         address_id=order_create.address_id,
-        product_id=order_create.product_id,
-        quantity=order_create.quantity,
+        items=order_create.items,
     )
 
     mock_user_repo = AsyncMock(spec=UserRepository)
@@ -187,17 +185,16 @@ def test_post_order(order_create: OrderCreate):
         assert response.json()["user_id"] == order.user_id
 
 
-def test_put_order(order_create: OrderCreate):
+def test_put_order(order_create: OrderResponse):
     """Тест обновления заказа"""
-    order = Order(
+    order = OrderResponse(
         id=1,
         user_id=order_create.user_id,
         address_id=order_create.address_id,
-        product_id=order_create.product_id,
-        quantity=order_create.quantity,
+        items=order_create.items,
     )
 
-    old_order = Order(id=1, user_id=1, address_id=1, product_id=1, quantity=1)
+    old_order = OrderResponse(id=1, user_id=1, address_id=1, items=[])
 
     mock_user_repo = AsyncMock(spec=UserRepository)
     mock_product_repo = AsyncMock(spec=ProductRepository)
@@ -228,7 +225,7 @@ def test_put_order(order_create: OrderCreate):
 def test_delete_order():
     """Тест удаления заказа"""
 
-    old_order = Order(id=1, user_id=1, address_id=1, product_id=1, quantity=1)
+    old_order = OrderResponse(id=1, user_id=1, address_id=1, items=[])
 
     mock_user_repo = AsyncMock(spec=UserRepository)
     mock_product_repo = AsyncMock(spec=ProductRepository)

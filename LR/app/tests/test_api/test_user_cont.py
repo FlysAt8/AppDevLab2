@@ -1,16 +1,14 @@
-from typing import Protocol
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock
 
 import pytest
 from litestar.di import Provide
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from litestar.testing import create_test_client
+from LR.app.controllers.user_controller import UserController
+from LR.app.repositories.user_repository import UserRepository
+from LR.app.services.user_service import UserService
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel
-
-from controllers.user_controller import UserController
-from repositories.user_repository import UserRepository
-from services.user_service import UserService
 
 
 class User(BaseModel):

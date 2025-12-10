@@ -1,7 +1,6 @@
 import pytest
-
-from models.model import ProductCreate, ProductUpdate
-from repositories.product_repository import ProductRepository
+from LR.app.repositories.product_repository import ProductRepository
+from LR.orm.model import ProductCreate, ProductUpdate
 
 
 class TestProductRepository:

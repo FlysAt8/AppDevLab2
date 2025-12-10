@@ -1,6 +1,6 @@
-from LR.app.models.model import ProductCreate, ProductUpdate
-from LR.app.models.test_db import Product
 from LR.app.repositories.product_repository import ProductRepository
+from LR.orm.db import Product
+from LR.orm.model import ProductCreate, ProductUpdate
 
 
 class ProductService:

@@ -1,9 +1,8 @@
 import pytest
-
-from models.model import OrderCreate, OrderUpdate, ProductCreate, UserCreate
-from repositories.order_repository import OrderRepository
-from repositories.product_repository import ProductRepository
-from repositories.user_repository import UserRepository
+from LR.app.repositories.order_repository import OrderRepository
+from LR.app.repositories.product_repository import ProductRepository
+from LR.app.repositories.user_repository import UserRepository
+from LR.orm.model import OrderCreate, OrderUpdate, ProductCreate, UserCreate
 
 
 class TestOrderRepository:
@@ -20,17 +19,20 @@ class TestOrderRepository:
         user_data = UserCreate(username="Alex", email="email", description="")
         await user_repository.create(user_data)
 
-        product_data = ProductCreate(product_name="prod", quantity=1)
+        product_data = ProductCreate(product_name="Product1", quantity=1)
         await product_repository.create(product_data)
 
-        order_data = OrderCreate(user_id=1, product_id=1, quantity=1)
+        order_data = OrderCreate(
+            user_id=1, address_id=1, items=[{"product_id": 1, "quantity": 1}]
+        )
 
         order = await order_repository.create(order_data)
 
         assert order.id is not None
         assert order.user_id == 1
-        assert order.product_id == 1
-        assert order.quantity == 1
+        assert order.address_id == 1
+        assert order.items[0].product_id == 1
+        assert order.items[0].quantity == 1
 
     @pytest.mark.asyncio
     async def test_order_get_id(
@@ -44,10 +46,7 @@ class TestOrderRepository:
         user_data = UserCreate(username="Alex", email="email", description="")
         await user_repository.create(user_data)
 
-        product_data = ProductCreate(product_name="prod", quantity=1)
-        await product_repository.create(product_data)
-
-        order_data = OrderCreate(user_id=1, product_id=1, quantity=1)
+        order_data = OrderCreate(user_id=1, address_id=1)
 
         await order_repository.create(order_data)
 
@@ -55,8 +54,8 @@ class TestOrderRepository:
 
         assert found_order.id is not None
         assert found_order.user_id == 1
-        assert found_order.product_id == 1
-        assert found_order.quantity == 1
+        assert found_order.address_id == 1
+        assert found_order.items == []
 
     @pytest.mark.asyncio
     async def test_order_get_all(
@@ -73,28 +72,45 @@ class TestOrderRepository:
         user_data = UserCreate(username="Alex1", email="email1", description="")
         await user_repository.create(user_data)
 
-        product_data = ProductCreate(product_name="prod", quantity=2)
-        await product_repository.create(product_data)
+        # создаём продукты
+        product_data1 = ProductCreate(product_name="Product1", quantity=10)
+        product1 = await product_repository.create(product_data1)
 
-        order_data1 = OrderCreate(user_id=1, product_id=1, quantity=1)
+        product_data2 = ProductCreate(product_name="Product2", quantity=5)
+        product2 = await product_repository.create(product_data2)
+
+        # создаём заказы с товарами
+        order_data1 = OrderCreate(
+            user_id=1,
+            address_id=1,
+            items=[{"product_id": product1.id, "quantity": 2}],
+        )
         await order_repository.create(order_data1)
 
-        order_data2 = OrderCreate(user_id=2, product_id=1, quantity=1)
+        order_data2 = OrderCreate(
+            user_id=2,
+            address_id=1,
+            items=[{"product_id": product2.id, "quantity": 1}],
+        )
         await order_repository.create(order_data2)
 
-        found_order = await order_repository.get_by_filter()
+        found_orders = await order_repository.get_by_filter()
 
-        assert found_order is not None
+        assert found_orders is not None
 
-        assert found_order[0].id == 1
-        assert found_order[0].user_id == 1
-        assert found_order[0].product_id == 1
-        assert found_order[0].quantity == 1
+        # проверяем первый заказ
+        assert found_orders[0].id is not None
+        assert found_orders[0].user_id == 1
+        assert found_orders[0].address_id == 1
+        assert found_orders[0].items[0].product_id == product1.id
+        assert found_orders[0].items[0].quantity == 2
 
-        assert found_order[1].id == 2
-        assert found_order[1].user_id == 2
-        assert found_order[1].product_id == 1
-        assert found_order[1].quantity == 1
+        # проверяем второй заказ
+        assert found_orders[1].id is not None
+        assert found_orders[1].user_id == 2
+        assert found_orders[1].address_id == 1
+        assert found_orders[1].items[0].product_id == product2.id
+        assert found_orders[1].items[0].quantity == 1
 
     @pytest.mark.asyncio
     async def test_order_update(
@@ -111,10 +127,7 @@ class TestOrderRepository:
         user_data = UserCreate(username="Alex1", email="email1", description="")
         await user_repository.create(user_data)
 
-        product_data = ProductCreate(product_name="prod", quantity=1)
-        await product_repository.create(product_data)
-
-        order_data = OrderCreate(user_id=1, product_id=1, quantity=1)
+        order_data = OrderCreate(user_id=1, address_id=1)
 
         await order_repository.create(order_data)
 
@@ -128,8 +141,7 @@ class TestOrderRepository:
         assert update_order is not None
         assert found_order.id == update_order.id
         assert found_order.user_id == update_order.user_id
-        assert found_order.product_id == update_order.product_id
-        assert found_order.quantity == update_order.quantity
+        assert found_order.address_id == update_order.address_id
 
     @pytest.mark.asyncio
     async def test_order_delete(
@@ -143,10 +155,7 @@ class TestOrderRepository:
         user_data = UserCreate(username="Alex1", email="email1", description="")
         await user_repository.create(user_data)
 
-        product_data = ProductCreate(product_name="prod", quantity=1)
-        await product_repository.create(product_data)
-
-        order_data = OrderCreate(user_id=1, product_id=1, quantity=1)
+        order_data = OrderCreate(user_id=1, address_id=1)
 
         await order_repository.create(order_data)
         found_order = await order_repository.get_by_id(1)

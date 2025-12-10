@@ -1,10 +1,9 @@
 from unittest.mock import AsyncMock, Mock
 
 import pytest
-
-from models.model import ProductCreate
-from repositories.product_repository import ProductRepository
-from services.product_service import ProductService
+from LR.app.repositories.product_repository import ProductRepository
+from LR.app.services.product_service import ProductService
+from LR.orm.model import ProductCreate
 
 
 class TestProductService:

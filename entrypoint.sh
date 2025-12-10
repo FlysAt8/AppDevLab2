@@ -2,6 +2,7 @@
 set -e
 
 # Применяем миграции Alembic (файл alembic.ini лежит в LR)
+# alembic -c LR/alembic.ini revision --autogenerate # если меняли бд
 alembic -c LR/alembic.ini upgrade head
 
 # Запускаем приложение

@@ -1,7 +1,6 @@
 import pytest
-
-from models.model import UserCreate, UserUpdate
-from repositories.user_repository import UserRepository
+from LR.app.repositories.user_repository import UserRepository
+from LR.orm.model import UserCreate, UserUpdate
 
 
 class TestUserRepository:

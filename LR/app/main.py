@@ -6,13 +6,13 @@ from litestar.di import Provide
 from LR.app.controllers.order_controller import OrderController
 from LR.app.controllers.product_controller import ProductController
 from LR.app.controllers.user_controller import MainPage, UserController
-from LR.app.models.test_db import Base
 from LR.app.repositories.order_repository import OrderRepository
 from LR.app.repositories.product_repository import ProductRepository
 from LR.app.repositories.user_repository import UserRepository
 from LR.app.services.order_service import OrderService
 from LR.app.services.product_service import ProductService
 from LR.app.services.user_service import UserService
+from LR.orm.db import Base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 

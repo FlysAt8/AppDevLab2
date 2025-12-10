@@ -4,8 +4,8 @@ from typing import List
 from litestar import Controller, Request, delete, get, post, put
 from litestar.exceptions import HTTPException, NotFoundException
 from litestar.params import Parameter
-from LR.app.models.model import UserCreate, UserResponse, UserUpdate
 from LR.app.services.user_service import UserService
+from LR.orm.model import UserCreate, UserResponse, UserUpdate
 
 
 class UserController(Controller):
@@ -104,4 +104,11 @@ class MainPage(Controller):
 Используйте:
     /users - для просмотра всех пользователей
     /users/[id пользователя] - для просмотра конкретного пользователя
+
+    /products - просмотреть продукты
+    /products/[id продукта] - для просмотра конкретного продукта
+
+    /orders - все заказы
+    /orders/[id заказа] - конкретный заказ
+    /orders/u/[id пользователя] - заказы конкретного пользователя
 """
