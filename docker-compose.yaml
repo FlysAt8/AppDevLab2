@@ -1,5 +1,6 @@
 volumes:
   postgres_data:
+  rabbitmq_data:
 
 services:
   postgres_db:
@@ -24,4 +25,16 @@ services:
     volumes:
       - .:/app
     command: ./entrypoint.sh
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_VHOST: local
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq_data:/data
 
