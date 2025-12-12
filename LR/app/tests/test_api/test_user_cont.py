@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 from litestar.di import Provide
@@ -44,7 +44,12 @@ def test_get_user_by_id(user: User):
     mock_user_repo = AsyncMock(spec=UserRepository)
     mock_user_repo.get_by_id.return_value = user
 
-    mock_service = UserService(mock_user_repo)
+    mock_redis = Mock()  # простой мок для Redis
+    mock_redis.setex = Mock()
+    mock_redis.delete = Mock()
+    mock_redis.get = Mock(return_value=None)
+
+    mock_service = UserService(mock_user_repo, mock_redis)
 
     with create_test_client(
         route_handlers=[UserController],
@@ -68,7 +73,12 @@ def test_get_users_by_filter(users: list[User]):
     mock_user_repo = AsyncMock(spec=UserRepository)
     mock_user_repo.get_by_filter.return_value = users
 
-    mock_service = UserService(mock_user_repo)
+    mock_redis = Mock()  # простой мок для Redis
+    mock_redis.setex = Mock()
+    mock_redis.delete = Mock()
+    mock_redis.get = Mock(return_value=None)
+
+    mock_service = UserService(mock_user_repo, mock_redis)
 
     with create_test_client(
         route_handlers=[UserController],

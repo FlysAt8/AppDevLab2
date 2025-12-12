@@ -1,8 +1,10 @@
 import os
 from typing import AsyncGenerator
 
+import redis
 from litestar import Litestar
 from litestar.di import Provide
+from LR.app.cache import redis_client
 from LR.app.controllers.order_controller import OrderController
 from LR.app.controllers.product_controller import ProductController
 from LR.app.controllers.user_controller import MainPage, UserController
@@ -56,16 +58,18 @@ async def provide_order_repository(db_session: AsyncSession) -> OrderRepository:
     return OrderRepository(db_session)
 
 
-async def provide_user_service(user_repository: UserRepository) -> UserService:
+async def provide_user_service(
+    user_repository: UserRepository, redis_client: redis.Redis
+) -> UserService:
     """Провайдер сервиса пользователей"""
-    return UserService(user_repository)
+    return UserService(user_repository, redis_client)
 
 
 async def provide_product_service(
-    product_repository: ProductRepository,
+    product_repository: ProductRepository, redis_client: redis.Redis
 ) -> ProductService:
     """Провайдер сервиса продуктов"""
-    return ProductService(product_repository)
+    return ProductService(product_repository, redis_client)
 
 
 async def provide_order_service(
@@ -75,6 +79,11 @@ async def provide_order_service(
 ) -> OrderService:
     """Провайдер сервиса заказов"""
     return OrderService(order_repository, user_repository, product_repository)
+
+
+async def provide_redis() -> redis.Redis:
+    """Провайдер Redis-клиента"""
+    return redis_client
 
 
 app = Litestar(
@@ -87,6 +96,7 @@ app = Litestar(
         "product_service": Provide(provide_product_service),
         "order_repository": Provide(provide_order_repository),
         "order_service": Provide(provide_order_service),
+        "redis_client": Provide(provide_redis),
     },
     on_startup=[init_models],
 )

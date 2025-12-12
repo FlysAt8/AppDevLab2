@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 from litestar.di import Provide
@@ -42,7 +42,14 @@ def test_get_product_by_id(product: Product):
     mock_product_repo = AsyncMock(spec=ProductRepository)
     mock_product_repo.get_by_id.return_value = product
 
-    mock_service = ProductService(mock_product_repo)
+    mock_redis = Mock()  # простой мок для Redis
+    mock_redis.setex = Mock()
+    mock_redis.delete = Mock()
+    mock_redis.get = Mock(return_value=None)
+
+    mock_service = ProductService(
+        product_repository=mock_product_repo, redis_client=mock_redis
+    )
 
     with create_test_client(
         route_handlers=[ProductController],
@@ -67,7 +74,14 @@ def test_get_products_by_filter(products: list[Product]):
     mock_product_repo = AsyncMock(spec=ProductRepository)
     mock_product_repo.get_by_filter.return_value = products
 
-    mock_service = ProductService(mock_product_repo)
+    mock_redis = Mock()  # простой мок для Redis
+    mock_redis.setex = Mock()
+    mock_redis.delete = Mock()
+    mock_redis.get = Mock(return_value=None)
+
+    mock_service = ProductService(
+        product_repository=mock_product_repo, redis_client=mock_redis
+    )
 
     with create_test_client(
         route_handlers=[ProductController],
@@ -174,7 +188,14 @@ def test_get_products_by_filter_page(products10: list[Product]):
 
     mock_product_repo.get_by_filter.side_effect = fake_get_by_filter
 
-    mock_service = ProductService(mock_product_repo)
+    mock_redis = Mock()  # простой мок для Redis
+    mock_redis.setex = Mock()
+    mock_redis.delete = Mock()
+    mock_redis.get = Mock(return_value=None)
+
+    mock_service = ProductService(
+        product_repository=mock_product_repo, redis_client=mock_redis
+    )
 
     with create_test_client(
         route_handlers=[ProductController],

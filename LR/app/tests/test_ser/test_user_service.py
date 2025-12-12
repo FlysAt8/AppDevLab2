@@ -19,8 +19,14 @@ class TestUserService:
         mock_user_repo.create.return_value = Mock(
             id=1, username="Test_User", email="email@example.com", description=""
         )
+        mock_redis = Mock()  # простой мок для Redis
+        mock_redis.setex = Mock()
+        mock_redis.delete = Mock()
+        mock_redis.get = Mock(return_value=None)
 
-        user_service = UserService(user_repository=mock_user_repo)
+        user_service = UserService(
+            user_repository=mock_user_repo, redis_client=mock_redis
+        )
 
         user_data = UserCreate(
             username="Test_User", email="email@example.com", description=""
@@ -46,7 +52,14 @@ class TestUserService:
         )
         mock_user_repo.create.return_value = None
 
-        user_service = UserService(user_repository=mock_user_repo)
+        mock_redis = Mock()  # простой мок для Redis
+        mock_redis.setex = Mock()
+        mock_redis.delete = Mock()
+        mock_redis.get = Mock(return_value=None)
+
+        user_service = UserService(
+            user_repository=mock_user_repo, redis_client=mock_redis
+        )
 
         user_data = UserCreate(
             username="Test_User", email="email@example.com", description=""

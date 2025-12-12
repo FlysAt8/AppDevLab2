@@ -20,7 +20,14 @@ class TestProductService:
             id=1, product_name="Product1", quantity=1
         )
 
-        product_service = ProductService(product_repository=mock_product_repo)
+        mock_redis = Mock()  # простой мок для Redis
+        mock_redis.setex = Mock()
+        mock_redis.delete = Mock()
+        mock_redis.get = Mock(return_value=None)
+
+        product_service = ProductService(
+            product_repository=mock_product_repo, redis_client=mock_redis
+        )
 
         product_data = ProductCreate(product_name="Product1", quantity=1)
 
@@ -44,7 +51,14 @@ class TestProductService:
         )
         mock_product_repo.create.return_value = None
 
-        product_service = ProductService(product_repository=mock_product_repo)
+        mock_redis = Mock()  # простой мок для Redis
+        mock_redis.setex = Mock()
+        mock_redis.delete = Mock()
+        mock_redis.get = Mock(return_value=None)
+
+        product_service = ProductService(
+            product_repository=mock_product_repo, redis_client=mock_redis
+        )
 
         product_data = ProductCreate(product_name="Product1", quantity=1)
 
@@ -62,7 +76,14 @@ class TestProductService:
         mock_product_repo.get_by_filter.return_value = None
         mock_product_repo.create.return_value = None
 
-        product_service = ProductService(product_repository=mock_product_repo)
+        mock_redis = Mock()  # простой мок для Redis
+        mock_redis.setex = Mock()
+        mock_redis.delete = Mock()
+        mock_redis.get = Mock(return_value=None)
+
+        product_service = ProductService(
+            product_repository=mock_product_repo, redis_client=mock_redis
+        )
 
         product_data = ProductCreate(product_name="Product1", quantity=-1)
 
