@@ -1,3 +1,4 @@
+from datetime import date
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
@@ -69,3 +70,17 @@ class Product(Base):
     quantity: Mapped[int] = mapped_column(nullable=True)
 
     order_items = relationship("OrderItem", back_populates="product")
+    
+
+class Report(Base):
+    __tablename__ = "reports"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+    report_at: Mapped[date] = mapped_column(nullable=False)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
+    count_product: Mapped[int] = mapped_column(nullable=False)
+
+    order = relationship("Order")
+

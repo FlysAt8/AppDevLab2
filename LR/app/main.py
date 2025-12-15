@@ -7,6 +7,7 @@ from litestar.di import Provide
 from LR.app.cache import redis_client
 from LR.app.controllers.order_controller import OrderController
 from LR.app.controllers.product_controller import ProductController
+from LR.app.controllers.report_controller import ReportController
 from LR.app.controllers.user_controller import MainPage, UserController
 from LR.app.repositories.order_repository import OrderRepository
 from LR.app.repositories.product_repository import ProductRepository
@@ -87,7 +88,13 @@ async def provide_redis() -> redis.Redis:
 
 
 app = Litestar(
-    route_handlers=[UserController, MainPage, ProductController, OrderController],
+    route_handlers=[
+        UserController,
+        MainPage,
+        ProductController,
+        OrderController,
+        ReportController,
+    ],
     dependencies={
         "db_session": Provide(provide_db_session),
         "user_repository": Provide(provide_user_repository),
